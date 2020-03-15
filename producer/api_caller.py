@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """Example Code of API calling to receive the prices of the tickets."""
 import sys
 import time
@@ -9,7 +9,7 @@ from aiohttp import ClientSession, FormData
 
 TARGET_FILE = time.strftime(r'/var/log/aviatickets/%Y%m%d-%H%M%S.log')
 
-BASE_URL = 'http://api.travelpayouts.com/v2/prices/month-matrix?'
+BASE_URL = 'http://api.travelpayouts.com/v2/prices/month-matrix'
 CURRENCY = 'rub'
 ORIGIN = 'LED'
 DESTINATION = 'KZN'
