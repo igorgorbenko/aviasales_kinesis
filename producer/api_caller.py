@@ -43,8 +43,11 @@ class TicketsApi:
 
 async def main():
     """Get run the code."""
-    if len(sys.argv) > 1:
-        api_token = sys.argv[1]
+    if len(sys.argv) != 2:
+        print('Usage: api_caller.py <your_api_token>')
+        sys.exit(1)
+        return
+    api_token = sys.argv[1]
 
     headers = {'X-Access-Token': api_token,
                'Accept-Encoding': 'gzip'}
