@@ -3,9 +3,10 @@
 import sys
 import time
 import logging
-import json
+import csv
 import asyncio
 from aiohttp import ClientSession, FormData
+from urllib.error import HTTPError
 
 TARGET_FILE = time.strftime(r'/var/log/aviatickets/%Y%m%d-%H%M%S.log')
 
@@ -36,19 +37,33 @@ class TicketsApi:
 
     async def get_data(self, data):
         """Get the data from API query."""
+        response_json = {}
         async with ClientSession(headers=self.headers) as session:
-            async with session.get(self.base_url, data=data) as response:
-                return await response.json()
+            try:
+                response = await session.get(self.base_url, data=data)
+                response.raise_for_status()
+                LOGGER.info('Response status %s: %s', self.base_url, response.status)
+                response_json = await response.json()
+            except HTTPError as http_err:
+                LOGGER.error('Oops! HTTP error occurred: %s', str(http_err))
+            except Exception as err:
+                LOGGER.error('Oops! An error ocurred: %s', str(err))
+            return response_json
 
 
-async def main():
-    """Get run the code."""
-    if len(sys.argv) != 2:
-        print('Usage: api_caller.py <your_api_token>')
-        sys.exit(1)
-        return
-    api_token = sys.argv[1]
+def log_maker(response_json):
+    """Save the response into a csv file."""
+    with open(TARGET_FILE, 'w') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        count = 0
+        for emp in response_json['data']:
+            csv_writer.writerow(emp.values())
+            count += 1
+        return count
 
+
+def prepare_request(api_token):
+    """Return the headers and query fot the API request."""
     headers = {'X-Access-Token': api_token,
                'Accept-Encoding': 'gzip'}
 
@@ -58,16 +73,28 @@ async def main():
     data.add_field('destination', DESTINATION)
     data.add_field('show_to_affiliates', SHOW_TO_AFFILIATES)
     data.add_field('trip_duration', TRIP_DURATION)
+    return headers, data
+
+
+async def main():
+    """Get run the code."""
+    if len(sys.argv) != 2:
+        print('Usage: api_caller.py <your_api_token>')
+        sys.exit(1)
+        return
+    api_token = sys.argv[1]
+    headers, data = prepare_request(api_token)
 
     api = TicketsApi(headers)
     response = await api.get_data(data)
 
-    if response['success']:
+    if response.get('success', None):
         LOGGER.info('API has returned %s items', len(response['data']))
         try:
-            with open(TARGET_FILE, 'w') as log_file:
-                json.dump(response['data'], log_file)
-            LOGGER.info('A log file %s has been filled', TARGET_FILE)
+            count_rows = log_maker(response)
+            LOGGER.info('%s rows have been saved into %s',
+                        count_rows,
+                        TARGET_FILE)
         except Exception as e:
             LOGGER.error('Oops! Request result was not saved to file. %s',
                          str(e))
