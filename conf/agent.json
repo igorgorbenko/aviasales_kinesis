@@ -1,0 +1,22 @@
+{
+  "cloudwatch.emitMetrics": true,
+  "kinesis.endpoint": "",
+  "firehose.endpoint": "",
+
+  "flows": [
+    {
+      "filePattern": "/var/log/airline_tickets/*log",
+      "kinesisStream": "Airline_Tickets",
+      "partitionKeyOption": "RANDOM",
+      "dataProcessingOptions": [
+         {
+            "optionName": "CSVTOJSON",
+            "customFieldNames": ["value", "trip_class", "show_to_affiliates", 
+                "return_date", "origin", "number_of_changes", "gate", "found_at",
+                "duration","distance","destination","depart_date","actual"]
+         }
+      ]
+
+    }
+  ]
+}
