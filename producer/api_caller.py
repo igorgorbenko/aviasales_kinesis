@@ -7,8 +7,11 @@ import csv
 import asyncio
 from aiohttp import ClientSession, FormData
 from urllib.error import HTTPError
+import json
+import uuid
 
-TARGET_FILE = time.strftime(r'/var/log/aviatickets/%Y%m%d-%H%M%S.log')
+
+TARGET_FILE = time.strftime(r'/var/log/airline_tickets/%Y%m%d-%H%M%S.log')
 
 BASE_URL = 'http://api.travelpayouts.com/v2/prices/month-matrix'
 CURRENCY = 'rub'
@@ -42,7 +45,8 @@ class TicketsApi:
             try:
                 response = await session.get(self.base_url, data=data)
                 response.raise_for_status()
-                LOGGER.info('Response status %s: %s', self.base_url, response.status)
+                LOGGER.info('Response status %s: %s',
+                            self.base_url, response.status)
                 response_json = await response.json()
             except HTTPError as http_err:
                 LOGGER.error('Oops! HTTP error occurred: %s', str(http_err))
@@ -51,14 +55,29 @@ class TicketsApi:
             return response_json
 
 
+def get_guid():
+    """Return the random UID."""
+    return str(uuid.uuid4())
+
+
 def log_maker(response_json):
     """Save the response into a csv file."""
-    with open(TARGET_FILE, 'w') as csv_file:
+    with open(TARGET_FILE, 'w+') as csv_file:
         csv_writer = csv.writer(csv_file)
         count = 0
-        for emp in response_json['data']:
-            csv_writer.writerow(emp.values())
+        new_row = []
+        for resp in response_json['data']:
+            if count == 0:
+                header = list(resp.keys())
+                header.append('record_id')
+                csv_writer.writerow(header)
+                count += 1
+
+            new_row = list(resp.values())
+            new_row.append(get_guid())
+            csv_writer.writerow(new_row)
             count += 1
+
         return count
 
 
@@ -87,7 +106,7 @@ async def main():
 
     api = TicketsApi(headers)
     response = await api.get_data(data)
-
+    print(json.dumps(response, indent=4))
     if response.get('success', None):
         LOGGER.info('API has returned %s items', len(response['data']))
         try:
