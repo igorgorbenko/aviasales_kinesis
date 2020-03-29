@@ -67,11 +67,11 @@ def log_maker(response_json):
         count = 0
         new_row = []
         for resp in response_json['data']:
-            if count == 0:
-                header = list(resp.keys())
-                header.append('record_id')
-                csv_writer.writerow(header)
-                count += 1
+            # if count == 0:
+            #     header = list(resp.keys())
+            #     header.append('record_id')
+            #     csv_writer.writerow(header)
+            #     count += 1
 
             new_row = list(resp.values())
             new_row.append(get_guid())
