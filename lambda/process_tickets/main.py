@@ -2,6 +2,8 @@
 import base64
 import json
 import boto3
+from decimal import Decimal
+
 
 DYNAMO_DB = boto3.resource('dynamodb')
 
@@ -28,7 +30,7 @@ class TicketsParser:
         """Pre-process the json data."""
         new_item = {
             'record_id': json_item.get('record_id'),
-            'cost': float(json_item.get('cost')),
+            'cost': Decimal(json_item.get('cost')),
             'trip_class': json_item.get('trip_class'),
             'show_to_affiliates': json_item.get('show_to_affiliates'),
             'origin': json_item.get('origin'),

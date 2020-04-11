@@ -1,3 +1,6 @@
+#--------------------------------------------------------------
+# New EC2 spot instance
+#--------------------------------------------------------------
 resource "aws_spot_instance_request" "producer_instance" {
   ami                    = "ami-09d069a04349dc3cb"
   instance_type          = "t2.micro"
@@ -14,7 +17,9 @@ resource "aws_spot_instance_request" "producer_instance" {
   tags = var.default_tags
 }
 
-
+#--------------------------------------------------------------
+# Security group
+#--------------------------------------------------------------
 resource "aws_security_group" "my_producer" {
   name        = "kinesis_procucer_security_group"
   description = "Allow SSH inbound traffic"
@@ -36,7 +41,9 @@ resource "aws_security_group" "my_producer" {
   tags = var.default_tags
 }
 
-
+#--------------------------------------------------------------
+# AWS EC2 Role
+#--------------------------------------------------------------
 resource "aws_iam_role" "ec2_kinesis" {
   name = "EC2-KinesisStreams-FullAccess"
 

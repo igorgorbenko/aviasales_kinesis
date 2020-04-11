@@ -1,3 +1,6 @@
+#----------------------------------------------------------
+# NEW DynamoDb table
+#----------------------------------------------------------
 resource "aws_dynamodb_table" "airline_tickets_table" {
   name           = var.raw_stream_info
   read_capacity  = 5
