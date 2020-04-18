@@ -10,7 +10,7 @@ def lambda_handler(event, context):
     try:
         SNS_CLIENT.publish(TopicArn=TOPIC_ARN,
                            Message='Hi! I have found an interesting stuff!',
-                           Subject='How-how! We have an interesting message!')
+                           Subject='Airline tickets alarm')
         print('Alarm message has been successfully delivered')
     except Exception as err:
         print('Delivery failure', str(err))
