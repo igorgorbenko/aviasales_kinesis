@@ -21,7 +21,7 @@ resource "aws_kinesis_stream" "special_stream" {
 # Kinesis Analytics Application
 #--------------------------------------------------------------
 resource "aws_kinesis_analytics_application" "test_application" {
-  name = "kinesis-analytics-application-test"
+  name = "kinesis_analytics_airlines_app"
 
   inputs {
     name_prefix = "test_prefix"

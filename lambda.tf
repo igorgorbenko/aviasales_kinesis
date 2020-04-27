@@ -1,10 +1,10 @@
 #--------------------------------------------------------------
 # AWS Lambda Functions
 #--------------------------------------------------------------
-data "archive_file" "process_tickets_zip" {
-  source_file = "${path.module}/lambda/process_tickets/main.py"
+data "archive_file" "collector_zip" {
+  source_file = "${path.module}/lambda/collector/main.py"
   type        = "zip"
-  output_path = "${path.module}/lambda/process_tickets/main.zip"
+  output_path = "${path.module}/lambda/collector/main.zip"
 }
 
 data "archive_file" "notifier_zip" {
@@ -13,10 +13,10 @@ data "archive_file" "notifier_zip" {
   output_path = "${path.module}/lambda/notifier/main.zip"
 }
 
-resource "aws_lambda_function" "process_tickets" {
+resource "aws_lambda_function" "collector" {
   function_name    = var.raw_stream_lambda
-  filename         = data.archive_file.process_tickets_zip.output_path
-  source_code_hash = data.archive_file.process_tickets_zip.output_base64sha256
+  filename         = data.archive_file.collector_zip.output_path
+  source_code_hash = data.archive_file.collector_zip.output_base64sha256
 
   role        = aws_iam_role.role_for_lambda_tickets.arn
   handler     = "main.lambda_handler"
@@ -51,7 +51,7 @@ resource "aws_lambda_function" "alarm_notifier" {
 resource "aws_lambda_event_source_mapping" "kinesis_mapping" {
   event_source_arn  = aws_kinesis_stream.airline_tickets.arn
   enabled           = true
-  function_name     = aws_lambda_function.process_tickets.arn
+  function_name     = aws_lambda_function.collector.arn
   starting_position = "LATEST"
 }
 

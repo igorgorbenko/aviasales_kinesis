@@ -6,6 +6,7 @@ from decimal import Decimal
 
 
 DYNAMO_DB = boto3.resource('dynamodb')
+TABLE_NAME = 'airline_tickets'
 
 
 class TicketsParser:
@@ -54,9 +55,9 @@ class TicketsParser:
 
         print('Has been added ', len(self.json_data), 'items')
 
+
 def lambda_handler(event, context):
     """Parse the stream and insert into the DynamoDB table."""
     print('Got event:', event)
-    table_name = 'airline_tickets'
-    parser = TicketsParser(table_name, event['Records'])
+    parser = TicketsParser(TABLE_NAME, event['Records'])
     parser.run()

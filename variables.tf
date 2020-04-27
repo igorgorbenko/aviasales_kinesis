@@ -20,7 +20,7 @@ variable "special_stream_info" {
 
 variable "raw_stream_lambda" {
   type    = string
-  default = "airline_tickets_processing"
+  default = "airline_collector"
 }
 
 variable "alarm_notifier" {

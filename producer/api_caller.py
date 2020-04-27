@@ -100,7 +100,7 @@ async def main():
 
     api = TicketsApi(headers)
     response = await api.get_data(data)
-    print(json.dumps(response, indent=4))
+    # print(json.dumps(response, indent=4))
     if response.get('success', None):
         LOGGER.info('API has returned %s items', len(response['data']))
         try:
